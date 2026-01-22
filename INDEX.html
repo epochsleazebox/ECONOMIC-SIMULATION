@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Fourth Way: Complete Economic Flow System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #0a0a0a;
+            --accent-gold: #FFD700;
+            --accent-purple: #9B4DCA;
+            --accent-yellow: #FBBF24;
+            --accent-green: #10B981;
+            --accent-blue: #3B82f6;
+            --accent-red: #EF4444;
+            --accent-orange: #F97316;
+            --text-primary: #FFFFFF;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Rajdhani', sans-serif; 
+            background: var(--primary-black); 
+            color: var(--text-primary); 
+            overflow: hidden; 
+        }
+        
+        /* Top Metrics Bar */
+        .metrics-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.95);
+            border-bottom: 2px solid var(--accent-gold);
+            padding: 1rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric {
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .metric:last-child {
+            border-right: none;
+        }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+        
+        .metric-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+        
+        .metric-value.good { color: var(--accent-green); }
+        .metric-value.bad { color: var(--accent-red); }
+        
+        /* Main diagram container */
+        .diagram-container { 
+            position: relative; 
+            width: 100%; 
+            height: 100vh; 
+            margin-top: 100px;
+            overflow: hidden;
+        }
+        
+        /* Hexagon styles */
+        .hexagon {
+            position: absolute; 
+            width: 110px; 
+            height: 130px;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            text-align: center; 
+            font-weight: 700; 
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .hexagon.black { 
+            background: var(--primary-black); 
+            border: 3px solid var(--accent-gold); 
+            color: var(--accent-gold); 
+        }
+        
+        .hexagon.purple { background: var(--accent-purple); color: white; }
+        .hexagon.green { background: var(--accent-green); color: white; }
+        .hexagon.yellow { background: var(--accent-yellow); color: #000; }
+        .hexagon.red { background: var(--accent-red); color: white; }
+        .hexagon.blue { background: var(--accent-blue); color: white; }
+        .hexagon.orange { background: var(--accent-orange); color: white; }
+        
+        .hexagon-label { 
+            font-size: 0.65rem; 
+            line-height: 1.1; 
+            padding: 0 8px; 
+            pointer-events: none; 
+        }
+        
+        /* Accumulation counters on hexagons */
+        .hex-counter {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            border: 1px solid currentColor;
+            padding: 2px 6px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 11;
+        }
+
+        /* Pulse animations */
+        @keyframes purplePulse {
+            0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-purple); }
+            50% { transform: scale(1.1); box-shadow: 0 0 15px var(--accent-purple); }
+            100% { transform: scale(1); box-shadow: 0 0 0px var(--accent-purple); }
+        }
+        
+        @keyframes goldPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-gold); }
+            50% { transform: scale(1.15); box-shadow: 0 0 25px var(--accent-gold); }
+            100% { transform: scale(1); box-shadow: 0 0 0px var(--accent-gold); }
+        }
+        
+        .pulse-active { animation: purplePulse 0.5s ease-in-out; }
+        .pulse-long { animation: purplePulse 1.0s ease-in-out; }
+        .pulse-gold { animation: goldPulse 0.8s ease-in-out; }
+
+        /* Connections */
+        .connection { 
+            position: absolute; 
+            height: 1px; 
+            background: rgba(255,255,255,0.08); 
+            transform-origin: left center; 
+            z-index: 1; 
+        }
+        
+        /* Flow particles */
+        .flow-particle { 
+            position: absolute; 
+            width: 6px; 
+            height: 6px; 
+            border-radius: 50%; 
+            z-index: 5; 
+            pointer-events: none;
+            box-shadow: 0 0 8px currentColor;
+        }
+        
+        /* Build items (houses, infrastructure icons) */
+        .build-item { 
+            position: absolute; 
+            font-size: 28px; 
+            opacity: 0; 
+            animation: buildPop 0.6s ease-out forwards; 
+            z-index: 2; 
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); 
+        }
+        
+        @keyframes buildPop { 
+            from { transform: scale(0); opacity: 0; } 
+            to { transform: scale(1); opacity: 0.8; } 
+        }
+
+        /* Main SWF counter */
+        .swf-counter {
+            position: absolute; 
+            bottom: 80px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.95); 
+            border: 3px solid var(--accent-gold);
+            border-radius: 12px; 
+            padding: 1.5rem 2rem; 
+            text-align: center; 
+            z-index: 50; 
+            min-width: 320px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .swf-value { 
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem; 
+            font-weight: 900; 
+            color: var(--accent-gold); 
+            margin-bottom: 0.5rem;
+        }
+        
+        .swf-label {
+            font-size: 0.8rem; 
+            color: #888; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .swf-breakdown {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .swf-breakdown-item {
+            text-align: center;
+        }
+        
+        .swf-breakdown-value {
+            font-family: 'Orbitron', monospace;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+        
+        .swf-breakdown-label {
+            color: #666;
+            font-size: 0.65rem;
+            margin-top: 0.2rem;
+        }
+        
+        /* Convergence point (the white dot where infrastructure flows converge) */
+        .convergence-point { 
+            position: absolute; 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 50%; 
+            background: #FFF; 
+            box-shadow: 0 0 20px #FFF; 
+            z-index: 15; 
+            transform: translate(-7px, -7px); 
+        }
+        
+        /* Phase indicator */
+        .phase-indicator {
+            position: absolute;
+            top: 120px;
+            right: 40px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--accent-gold);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            z-index: 50;
+            min-width: 250px;
+        }
+        
+        .phase-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .phase-status {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phase-status.gentle {
+            color: var(--accent-blue);
+        }
+        
+        .phase-status.bite {
+            color: var(--accent-red);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .phase-description {
+            font-size: 0.75rem;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        /* Control buttons */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            z-index: 50;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .control-btn {
+            background: var(--accent-gold);
+            color: var(--primary-black);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .control-btn:hover {
+            background: #FFF;
+            box-shadow: 0 0 20px var(--accent-gold);
+        }
+        
+        .control-btn.danger {
+            background: var(--accent-red);
+            color: white;
+        }
+        
+        /* Pivot alert */
+        .pivot-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.98);
+            border: 4px solid var(--accent-gold);
+            padding: 3rem 4rem;
+            border-radius: 12px;
+            z-index: 200;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .pivot-alert.show {
+            opacity: 1;
+        }
+        
+        .pivot-alert-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            color: var(--accent-gold);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+        
+        .pivot-alert-text {
+            font-size: 1.5rem;
+            color: var(--accent-red);
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Metrics Bar -->
+    <div class="metrics-bar">
+        <div class="metric">
+            <div class="metric-label">Date</div>
+            <div class="metric-value" id="year-display">Jan 2026</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Debt to GDP</div>
+            <div class="metric-value bad" id="debt-ratio">95.6%</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">SWF Assets</div>
+            <div class="metric-value" id="swf-total">£60.0B</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Infrastructure %</div>
+            <div class="metric-value" id="infra-ownership">5%</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Citizen Dividend</div>
+            <div class="metric-value good" id="dividend-rate">10%</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">AI Crypto Pool</div>
+            <div class="metric-value" id="crypto-pool">£0.5B</div>
+        </div>
+    </div>
+
+    <!-- Phase Indicator -->
+    <div class="phase-indicator">
+        <div class="phase-title">CURRENT PHASE</div>
+        <div class="phase-status gentle" id="phase-status">GENTLE ACCUMULATION</div>
+        <div class="phase-description" id="phase-description">
+            Gradual infrastructure acquisition. Ruthless debt paydown to 65% GDP target.
+        </div>
+    </div>
+
+    <!-- Main Diagram -->
+    <main class="diagram-container" id="diagram">
+        <!-- SWF Counter (will be populated by script) -->
+        <div class="swf-counter">
+            <div class="swf-value" id="swfValue">£60.0B</div>
+            <div class="swf-label">Sovereign Wealth Fund</div>
+            <div class="swf-breakdown">
+                <div class="swf-breakdown-item">
+                    <div class="swf-breakdown-value" id="swf-infra-invest">£0.0B</div>
+                    <div class="swf-breakdown-label">Infrastructure</div>
+                </div>
+                <div class="swf-breakdown-item">
+                    <div class="swf-breakdown-value" id="swf-debt-pay">£0.0B</div>
+                    <div class="swf-breakdown-label">Debt Paid</div>
+                </div>
+                <div class="swf-breakdown-item">
+                    <div class="swf-breakdown-value" id="swf-dividends">£0.0B</div>
+                    <div class="swf-breakdown-label">Dividends</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Control Buttons -->
+    <div class="controls">
+        <button class="control-btn" onclick="toggleSimulation()" id="toggle-btn">START</button>
+        <button class="control-btn danger" onclick="resetSimulation()">RESET</button>
+    </div>
+
+    <!-- Pivot Alert -->
+    <div class="pivot-alert" id="pivot-alert">
+        <div class="pivot-alert-title">65% TARGET REACHED</div>
+        <div class="pivot-alert-text">INITIATING THE BITE</div>
+        <div class="pivot-alert-text">50% INFRASTRUCTURE ACQUISITION</div>
+    </div>
+
+    <script>
+        const diagram = document.getElementById('diagram');
+        
+        // Layout constants
+        const COL_LEFT = 100;
+        const COL_MID_LEFT = 750;
+        const COL_CENTER = 950;
+        const COL_MID_RIGHT = 1350;
+        const COL_RIGHT = 1780;
+        const GREEN_Y = 850;
+
+        // Simulation state
+        let isRunning = false;
+        let currentYear = 2026;
+        let currentMonth = 1;
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        let stats = {
+            debt: 2660,  // 95% of GDP
+            gdp: 2800,
+            
+            // Black AI Broker (only surplus can be risked)
+            aiBroker: {
+                protectedPrincipal: 0.5,  // Cannot be lost
+                surplusCapital: 0,        // Can be risked
+                totalTransferredToSWF: 0
+            },
+            
+            // Black SWF
+            swf: 60,  // Initial BoE loan + savings
+            crypto: 0.5,  // Legacy display - actually in AI Broker now
+            infraOwnership: 5,
+            dividendRate: 0,  // 0% for first 5 years
+            hasPivoted: false,
+            monthsSinceStart: 0,
+            
+            // Accumulation tracking
+            totalInfraInvested: 0,
+            totalDebtPaid: 0,
+            totalDividendsPaid: 0,
+            
+            // Per-node accumulation
+            accum: {
+                fraud: 0,
+                drugs: 0,
+                seized: 0,
+                mined: 0,
+                natural: 0,
+                steel: 0,
+                water: 0,
+                rail: 0,
+                ports: 0,
+                energy: 0,
+                digital: 0
+            }
+        };
+
+        // Hexagon definitions
+        const hexagons = [
+            // PURPLE CHAIN (Government departments - left side)
+            { id: 'p-fraud', label: 'Fraud & Waste Taskforce', color: 'purple', x: COL_LEFT, y: 20, flows: [{ to: 'swf', color: 'purple' }], track: 'fraud' },
+            { id: 'p-nhs', label: 'NHS', color: 'purple', x: COL_LEFT, y: 130, flows: [] },
+            { id: 'p-edu', label: 'Education', color: 'purple', x: COL_LEFT, y: 240, flows: [] },
+            { id: 'p-crime', label: 'Crime & Policing', color: 'purple', x: COL_LEFT, y: 350, flows: [] },
+            { id: 'p-trans', label: 'Transport', color: 'purple', x: COL_LEFT, y: 460, flows: [] },
+            { id: 'p-defence', label: 'Defence', color: 'purple', x: COL_LEFT, y: 570, flows: [] },
+            { id: 'p-inland', label: 'Inland Revenue', color: 'purple', x: COL_LEFT, y: 680, flows: [] },
+            { id: 'p-welfare', label: 'Welfare', color: 'purple', x: COL_LEFT, y: 790, flows: [] },
+
+            // REVENUE STREAMS (top middle)
+            { id: 'o-drugs', label: 'Legalised Drug Duty', color: 'orange', x: COL_MID_LEFT, y: 30, flows: [{ to: 'swf', color: 'orange' }], track: 'drugs' },
+            { id: 'r-seized', label: 'Seized Digital Assets', color: 'red', x: COL_CENTER, y: 30, flows: [{ to: 'ai-broker', color: 'red' }], track: 'seized' },
+            { id: 'b-mined', label: 'Mined Assets', color: 'blue', x: 1150, y: 30, flows: [{ to: 'ai-broker', color: 'blue' }], track: 'mined' },
+
+            // GREEN ROW (bottom - citizen-facing)
+            { id: 'g-social', label: 'Social Security', color: 'green', x: 500, y: GREEN_Y, flows: [{ to: 'p-welfare', color: 'green', bidi: true }] },
+            { id: 'g-income', label: 'Income Tax', color: 'green', x: 700, y: GREEN_Y, flows: [{ to: 'p-inland', color: 'green' }] },
+            { id: 'g-rent', label: 'Rent To Equity', color: 'green', x: 900, y: GREEN_Y, flows: [{ to: 'swf', color: 'green', type: 'rent-bounce' }] },
+            { id: 'g-swf5', label: '5% SWF Contribution', color: 'green', x: 1100, y: GREEN_Y, flows: [{ to: 'swf', color: 'gold', bidi: true }] },
+
+            // YELLOW ROW (infrastructure - right side)
+            { id: 'y-steel', label: 'Steel', color: 'yellow', icon: '🏗️', x: COL_RIGHT, y: 100, flows: [{ to: 'conv-point', color: 'gold' }], track: 'steel' },
+            { id: 'y-water', label: 'Water', color: 'yellow', icon: '💧', x: COL_RIGHT, y: 220, flows: [{ to: 'conv-point', color: 'gold' }], track: 'water' },
+            { id: 'y-rail', label: 'Rail', color: 'yellow', icon: '🚆', x: COL_RIGHT, y: 340, flows: [{ to: 'conv-point', color: 'gold' }], track: 'rail' },
+            { id: 'y-ports', label: 'Ports', color: 'yellow', icon: '⚓', x: COL_RIGHT, y: 460, flows: [{ to: 'conv-point', color: 'gold' }], track: 'ports' },
+            { id: 'y-energy', label: 'Energy', color: 'yellow', icon: '⚡', x: COL_RIGHT, y: 580, flows: [{ to: 'conv-point', color: 'gold' }], track: 'energy' },
+            { id: 'y-digital', label: 'Digital', color: 'yellow', icon: '💾', x: COL_RIGHT, y: 700, flows: [{ to: 'conv-point', color: 'gold' }], track: 'digital' },
+
+            // BLACK HEXAGONS (core system nodes)
+            { id: 'ai-broker', label: 'AI BROKER\n(Crypto Pool)', color: 'black', x: 1050, y: 240, flows: [{ to: 'swf', color: 'gold', super: true }] },
+            { id: 'boe', label: 'BANK OF\nENGLAND', color: 'black', x: COL_MID_RIGHT, y: 240, flows: [{ to: 'conv-point', color: 'gold' }] },
+            { id: 'swf', label: 'SOVEREIGN\nWEALTH FUND', color: 'black', x: COL_CENTER, y: 460, flows: [{ to: 'boe', color: 'gold' }, { to: 'conv-point', color: 'gold' }] },
+            { id: 'natural', label: 'NATURAL\nCAPITAL', color: 'black', x: 400, y: 200, flows: [{ to: 'swf', color: 'gold' }], track: 'natural' },
+            
+            // Convergence point (invisible, just for flow targeting)
+            { id: 'conv-point', label: '', color: 'transparent', x: 1580, y: 430, flows: [{ to: 'y-steel', color: 'gold' }, { to: 'y-water', color: 'gold' }, { to: 'y-rail', color: 'gold' }, { to: 'y-ports', color: 'gold' }, { to: 'y-energy', color: 'gold' }, { to: 'y-digital', color: 'gold' }, { to: 'swf', color: 'gold' }] }
+        ];
+
+        let particles = [];
+        let connections = [];
+
+        // Initialize diagram
+        function init() {
+            // Create hexagons
+            hexagons.forEach(h => {
+                if (h.color !== 'transparent') {
+                    const el = document.createElement('div');
+                    el.className = `hexagon ${h.color}`;
+                    el.id = `hex-${h.id}`;
+                    el.style.left = h.x + 'px';
+                    el.style.top = h.y + 'px';
+                    el.innerHTML = `<div class="hexagon-label">${h.label}</div>`;
+                    
+                    // Add counter if this hex tracks accumulation
+                    if (h.track) {
+                        const counter = document.createElement('div');
+                        counter.className = 'hex-counter';
+                        counter.id = `counter-${h.id}`;
+                        counter.textContent = '£0.0B';
+                        el.appendChild(counter);
+                    }
+                    
+                    diagram.appendChild(el);
+                } else if (h.id === 'conv-point') {
+                    // Create convergence point (white dot)
+                    const dot = document.createElement('div');
+                    dot.className = 'convergence-point';
+                    dot.style.left = (h.x + 55) + 'px';
+                    dot.style.top = (h.y + 65) + 'px';
+                    diagram.appendChild(dot);
+                }
+
+                // Create connection lines
+                h.flows?.forEach(f => {
+                    const t = hexagons.find(hex => hex.id === f.to);
+                    if (!t) return;
+                    
+                    const x1 = h.x + 55;
+                    const y1 = h.y + 65;
+                    const x2 = t.x + 55;
+                    const y2 = t.y + 65;
+                    const len = Math.hypot(x2 - x1, y2 - y1);
+                    
+                    const line = document.createElement('div');
+                    line.className = 'connection';
+                    line.style.width = len + 'px';
+                    line.style.left = x1 + 'px';
+                    line.style.top = y1 + 'px';
+                    line.style.transform = `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}deg)`;
+                    diagram.appendChild(line);
+                    
+                    connections.push({ x1, y1, x2, y2, len, color: f.color, type: f.type, targetId: f.to, super: f.super, bidi: f.bidi, icon: t.icon, sourceId: h.id });
+                });
+            });
+
+            // Start purple pulse cycle
+            startPurpleCycle();
+            
+            // Start animation loop
+            animate();
+        }
+
+        // Purple department pulse animation
+        async function startPurpleCycle() {
+            const chain = ['p-welfare', 'p-inland', 'p-defence', 'p-trans', 'p-crime', 'p-edu', 'p-nhs', 'p-fraud'];
+            while (true) {
+                for (let i = 0; i < chain.length; i++) {
+                    const el = document.getElementById(`hex-${chain[i]}`);
+                    if (!el) continue;
+                    
+                    if (chain[i] === 'p-fraud') {
+                        // Fraud & Waste has special long pulse and sends particles
+                        el.classList.add('pulse-long');
+                        await sleep(600);
+                        
+                        // Send fraud recovery to SWF
+                        for (let j = 0; j < 8; j++) {
+                            spawnParticle(COL_LEFT + 55, 20 + 65, COL_CENTER + 55, 460 + 65, 'purple', null, 'swf', false, 'fraud');
+                        }
+                        
+                        await sleep(600);
+                        el.classList.remove('pulse-long');
+                    } else {
+                        el.classList.add('pulse-active');
+                        await sleep(350);
+                        el.classList.remove('pulse-active');
+                    }
+                }
+                await sleep(2000);
+            }
+        }
+
+        // Spawn flow particle
+        function spawnParticle(x1, y1, x2, y2, color, type, targetId, supercharge, track) {
+            const el = document.createElement('div');
+            el.className = 'flow-particle';
+            el.style.backgroundColor = `var(--accent-${color})`;
+            if (supercharge) {
+                el.style.width = el.style.height = '10px';
+            }
+            diagram.appendChild(el);
+            particles.push({ el, x1, y1, x2, y2, speed: supercharge ? 9 : 5, life: 0, type, targetId, track });
+        }
+
+        // Main animation loop
+        function animate() {
+            // Spawn random particles along connections
+            connections.forEach(c => {
+                if (Math.random() < 0.035) {
+                    spawnParticle(c.x1, c.y1, c.x2, c.y2, c.color, c.type, c.targetId, c.super, c.sourceId);
+                    if (c.bidi) {
+                        spawnParticle(c.x2, c.y2, c.x1, c.y1, c.color, null, null, false);
+                    }
+                }
+            });
+
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.life += p.speed;
+                const ratio = p.life / Math.hypot(p.x2 - p.x1, p.y2 - p.y1);
+                const curX = p.x1 + (p.x2 - p.x1) * ratio;
+                const curY = p.y1 + (p.y2 - p.y1) * ratio;
+                p.el.style.left = curX + 'px';
+                p.el.style.top = curY + 'px';
+
+                if (p.life >= Math.hypot(p.x2 - p.x1, p.y2 - p.y1)) {
+                    // Particle reached destination
+                    
+                    // Handle rent-bounce (creates houses)
+                    if (p.type === 'rent-bounce') {
+                        const voidX = 400 + Math.random() * 250;
+                        const voidY = 300 + Math.random() * 300;
+                        spawnParticle(p.x2, p.y2, voidX, voidY, 'gold', 'land-house', null, false);
+                    }
+                    
+                    // Build houses
+                    if (p.type === 'land-house') {
+                        buildSomething(curX, curY, '🏠');
+                    }
+                    
+                    // Track accumulation
+                    if (p.track) {
+                        const hex = hexagons.find(h => h.id === p.track);
+                        if (hex && hex.track) {
+                            stats.accum[hex.track] += 0.1;
+                            updateCounter(p.track);
+                        }
+                    }
+                    
+                    // Update SWF when particles reach it
+                    if (p.targetId === 'swf') {
+                        stats.swf += 0.3;
+                    }
+                    
+                    p.el.remove();
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Update hexagon counter
+        function updateCounter(hexId) {
+            const hex = hexagons.find(h => h.id === hexId);
+            if (!hex || !hex.track) return;
+            
+            const counter = document.getElementById(`counter-${hexId}`);
+            if (counter) {
+                counter.textContent = `£${stats.accum[hex.track].toFixed(1)}B`;
+            }
+        }
+
+        // Build infrastructure icon
+        function buildSomething(x, y, char) {
+            const b = document.createElement('div');
+            b.className = 'build-item';
+            b.innerHTML = char;
+            b.style.left = (x + (Math.random() * 60 - 30)) + 'px';
+            b.style.top = (y + (Math.random() * 60 - 30)) + 'px';
+            diagram.appendChild(b);
+            
+            // Clean up old items
+            if (diagram.children.length > 600) {
+                const oldest = diagram.querySelector('.build-item');
+                if (oldest) oldest.remove();
+            }
+        }
+
+        // Simulation step (runs MONTHLY now, not yearly)
+        function simulationStep() {
+            if (!isRunning) return;
+            
+            // Increment month
+            currentMonth++;
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            }
+            stats.monthsSinceStart++;
+            const yearsSinceStart = stats.monthsSinceStart / 12;
+            
+            // GDP growth (slow, ~2% annual = ~0.165% monthly)
+            stats.gdp *= 1.00165;
+            
+            // === AI BROKER OPERATIONS (Monthly) ===
+            // Inflows: drug duty, seized crypto, mined crypto
+            const monthlyAIInflows = (0.08 + Math.random() * 0.04) / 10;  // Scaled for visible animation
+            stats.aiBroker.surplusCapital += monthlyAIInflows;
+            
+            // Trading activity - can gain or lose, but only from surplus
+            if (stats.aiBroker.surplusCapital > 0.2) {
+                const tradingReturn = stats.aiBroker.surplusCapital * (Math.random() * 0.06 - 0.01);
+                stats.aiBroker.surplusCapital += tradingReturn;
+                if (stats.aiBroker.surplusCapital < 0) stats.aiBroker.surplusCapital = 0;
+            }
+            
+            // Transfer to SWF when surplus is high enough
+            if (stats.aiBroker.surplusCapital > 2.0) {
+                const transfer = stats.aiBroker.surplusCapital * 0.5;
+                stats.aiBroker.surplusCapital -= transfer;
+                stats.swf += transfer;
+                stats.aiBroker.totalTransferredToSWF += transfer;
+            }
+            
+            // === BLACK SWF OPERATIONS ===
+            // Natural capital revenue (monthly)
+            const monthlyNatural = (3 + Math.random() * 2) / 12;
+            stats.swf += monthlyNatural;
+            stats.accum.natural += monthlyNatural;
+            
+            // Infrastructure returns (monthly)
+            const monthlyInfraReturn = (stats.infraOwnership / 100) * (8 / 12);
+            stats.swf += monthlyInfraReturn;
+            
+            // === DEBT DYNAMICS ===
+            let debtRatio = (stats.debt / stats.gdp) * 100;
+            
+            // Debt grows at inflation minus paydown
+            const monthlyDebtGrowth = stats.debt * 0.00165;  // ~2% annual inflation
+            let monthlyDebtPaydown = 0;
+            
+            // SWF returns used for debt paydown (depends on phase)
+            const swfMonthlyReturns = stats.swf * 0.004;  // ~5% annual return
+            
+            if (debtRatio > 65) {
+                // Gentle phase: aggressive debt paydown
+                monthlyDebtPaydown = swfMonthlyReturns * 0.7;  // 70% to debt
+                stats.debt = stats.debt + monthlyDebtGrowth - monthlyDebtPaydown;
+                
+                // Ensure debt never grows faster than GDP
+                const maxDebt = stats.gdp * 0.95;
+                if (stats.debt > maxDebt) stats.debt = maxDebt;
+                
+                stats.totalDebtPaid += monthlyDebtPaydown;
+                
+                // Gradual infrastructure acquisition
+                if (stats.infraOwnership < 15) {
+                    stats.infraOwnership += 0.02;  // Slower monthly increment
+                    stats.totalInfraInvested += stats.gdp * 0.0005;
+                }
+                
+                // Dividend logic: 0% for first 5 years
+                if (yearsSinceStart < 5) {
+                    stats.dividendRate = 0;
+                } else if (yearsSinceStart < 10) {
+                    // Years 6-10: Controlled release (20% to citizens)
+                    stats.dividendRate = 0.20;
+                    const monthlyDividends = swfMonthlyReturns * stats.dividendRate;
+                    stats.totalDividendsPaid += monthlyDividends;
+                }
+                
+            } else if (debtRatio > 50) {
+                // Rebalancing phase (65% -> 50%)
+                if (!stats.hasPivoted) {
+                    triggerPivot();
+                }
+                
+                monthlyDebtPaydown = swfMonthlyReturns * 0.2;  // 20% to debt
+                stats.debt = stats.debt + monthlyDebtGrowth - monthlyDebtPaydown;
+                stats.totalDebtPaid += monthlyDebtPaydown;
+                
+                // Accelerated infrastructure acquisition to 50%
+                if (stats.infraOwnership < 50) {
+                    stats.infraOwnership += 0.1;
+                    stats.totalInfraInvested += stats.gdp * 0.002;
+                }
+                
+                // Dividends 35-40% to citizens
+                stats.dividendRate = 0.375;
+                const monthlyDividends = swfMonthlyReturns * stats.dividendRate;
+                stats.totalDividendsPaid += monthlyDividends;
+                
+            } else {
+                // Mature state (debt <= 50%)
+                monthlyDebtPaydown = swfMonthlyReturns * 0.125;  // 12.5% to debt
+                stats.debt = stats.debt + monthlyDebtGrowth - monthlyDebtPaydown;
+                stats.totalDebtPaid += monthlyDebtPaydown;
+                
+                // Maintain 50% infrastructure
+                if (stats.infraOwnership < 50) {
+                    stats.infraOwnership += 0.05;
+                }
+                
+                // GDP growth from state ownership
+                stats.gdp *= 1.0015;  // Slightly higher monthly growth
+                
+                // Dividends 55% to citizens
+                stats.dividendRate = 0.55;
+                const monthlyDividends = swfMonthlyReturns * stats.dividendRate;
+                stats.totalDividendsPaid += monthlyDividends;
+            }
+            
+            // Update tracking
+            stats.accum.drugs += monthlyAIInflows * 0.6;  // Portion from drugs
+            stats.accum.seized += monthlyAIInflows * 0.25;  // Portion from seized
+            stats.accum.mined += monthlyAIInflows * 0.15;  // Portion from mined
+            
+            // Update crypto display (actually AI Broker total now)
+            stats.crypto = stats.aiBroker.protectedPrincipal + stats.aiBroker.surplusCapital;
+            
+            // Update UI
+            updateMetrics();
+            
+            // Continue simulation (500ms per month = medium speed)
+            setTimeout(simulationStep, 500);
+        }
+
+        // Trigger the 65% pivot
+        function triggerPivot() {
+            stats.hasPivoted = true;
+            
+            // Show alert
+            const alert = document.getElementById('pivot-alert');
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 4000);
+            
+            // Pulse SWF hexagon
+            const swfHex = document.getElementById('hex-swf');
+            if (swfHex) {
+                swfHex.classList.add('pulse-gold');
+                setTimeout(() => swfHex.classList.remove('pulse-gold'), 800);
+            }
+        }
+
+        // Update all metrics displays
+        function updateMetrics() {
+            // Show month and year
+            document.getElementById('year-display').textContent = `${monthNames[currentMonth - 1]} ${currentYear}`;
+            
+            const ratio = (stats.debt / stats.gdp) * 100;
+            const ratioEl = document.getElementById('debt-ratio');
+            ratioEl.textContent = ratio.toFixed(1) + '%';
+            ratioEl.className = 'metric-value ' + (ratio > 70 ? 'bad' : ratio < 60 ? 'good' : '');
+            
+            document.getElementById('swf-total').textContent = '£' + stats.swf.toFixed(1) + 'B';
+            document.getElementById('infra-ownership').textContent = stats.infraOwnership.toFixed(0) + '%';
+            document.getElementById('dividend-rate').textContent = (stats.dividendRate * 100).toFixed(0) + '%';
+            document.getElementById('crypto-pool').textContent = '£' + stats.crypto.toFixed(1) + 'B';
+            
+            // SWF counter
+            document.getElementById('swfValue').textContent = '£' + stats.swf.toFixed(1) + 'B';
+            document.getElementById('swf-infra-invest').textContent = '£' + stats.totalInfraInvested.toFixed(1) + 'B';
+            document.getElementById('swf-debt-pay').textContent = '£' + stats.totalDebtPaid.toFixed(1) + 'B';
+            document.getElementById('swf-dividends').textContent = '£' + stats.totalDividendsPaid.toFixed(1) + 'B';
+            
+            // Phase indicator
+            const phaseStatus = document.getElementById('phase-status');
+            const phaseDesc = document.getElementById('phase-description');
+            const yearsSinceStart = stats.monthsSinceStart / 12;
+            
+            const debtRatio = (stats.debt / stats.gdp) * 100;
+            
+            if (debtRatio > 65) {
+                phaseStatus.textContent = 'GENTLE ACCUMULATION';
+                phaseStatus.className = 'phase-status gentle';
+                if (yearsSinceStart < 5) {
+                    phaseDesc.textContent = `Year ${yearsSinceStart.toFixed(1)} - Moratorium active. Debt ${debtRatio.toFixed(1)}% → 65% target. Zero dividends.`;
+                } else {
+                    phaseDesc.textContent = `Year ${yearsSinceStart.toFixed(1)} - Controlled release. Debt ${debtRatio.toFixed(1)}% → 65% target. 20% dividends.`;
+                }
+            } else if (debtRatio > 50) {
+                phaseStatus.textContent = 'THE BITE - REBALANCING';
+                phaseStatus.className = 'phase-status bite';
+                phaseDesc.textContent = `Debt ${debtRatio.toFixed(1)}%. Acquiring 50% infrastructure. 37.5% dividends to citizens.`;
+            } else {
+                phaseStatus.textContent = 'MATURE STATE';
+                phaseStatus.className = 'phase-status bite';
+                phaseDesc.textContent = `Debt ${debtRatio.toFixed(1)}%. 50% infrastructure secured. 55% dividends. System stable.`;
+            }
+        }
+
+        // Toggle simulation
+        function toggleSimulation() {
+            isRunning = !isRunning;
+            const btn = document.getElementById('toggle-btn');
+            btn.textContent = isRunning ? 'PAUSE' : 'START';
+            
+            if (isRunning) {
+                simulationStep();
+            }
+        }
+
+        // Reset simulation
+        function resetSimulation() {
+            isRunning = false;
+            currentYear = 2026;
+            currentMonth = 1;
+            stats = {
+                debt: 2660,
+                gdp: 2800,
+                aiBroker: {
+                    protectedPrincipal: 0.5,
+                    surplusCapital: 0,
+                    totalTransferredToSWF: 0
+                },
+                swf: 60,
+                crypto: 0.5,
+                infraOwnership: 5,
+                dividendRate: 0,
+                hasPivoted: false,
+                monthsSinceStart: 0,
+                totalInfraInvested: 0,
+                totalDebtPaid: 0,
+                totalDividendsPaid: 0,
+                accum: {
+                    fraud: 0,
+                    drugs: 0,
+                    seized: 0,
+                    mined: 0,
+                    natural: 0,
+                    steel: 0,
+                    water: 0,
+                    rail: 0,
+                    ports: 0,
+                    energy: 0,
+                    digital: 0
+                }
+            };
+            
+            updateMetrics();
+            
+            // Reset all counters
+            Object.keys(stats.accum).forEach(key => {
+                const hex = hexagons.find(h => h.track === key);
+                if (hex) {
+                    const counter = document.getElementById(`counter-${hex.id}`);
+                    if (counter) counter.textContent = '£0.0B';
+                }
+            });
+            
+            document.getElementById('toggle-btn').textContent = 'START';
+        }
+
+        // Helper function for delays
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
